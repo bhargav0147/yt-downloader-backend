@@ -28,6 +28,7 @@ exports.getVideoInfo = async (req, res) => {
       noWarnings: true,
       noCheckCertificate: true,
       preferFreeFormats: true,
+      extractorArgs: 'youtube:player_client=android',
     };
     if (process.env.YOUTUBE_COOKIES_FILE) {
       ytDlpOptions.cookies = process.env.YOUTUBE_COOKIES_FILE;
@@ -98,6 +99,7 @@ exports.downloadVideo = async (req, res) => {
       noCheckCertificate: true,
       noWarnings: true,
       ffmpegLocation: binDir,
+      extractorArgs: 'youtube:player_client=android',
     };
     if (process.env.YOUTUBE_COOKIES_FILE) {
       ytDlpOptions.cookies = process.env.YOUTUBE_COOKIES_FILE;
