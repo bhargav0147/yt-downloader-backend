@@ -8,6 +8,18 @@ if (!fs.existsSync(tempDir)) {
   fs.mkdirSync(tempDir);
 }
 
+// Generate cookies file from string if provided
+let cookiesFilePath = null;
+if (process.env.YOUTUBE_COOKIES_FILE) {
+  cookiesFilePath = process.env.YOUTUBE_COOKIES_FILE;
+} else if (process.env.YOUTUBE_COOKIES_STRING) {
+  cookiesFilePath = path.join(tempDir, 'youtube_cookies.txt');
+  // Handle escaped newlines in environment variables
+  const formattedCookies = process.env.YOUTUBE_COOKIES_STRING.replace(/\\n/g, '\n');
+  fs.writeFileSync(cookiesFilePath, formattedCookies);
+  console.log('Successfully created cookies file from environment variable string');
+}
+
 // Function to safely validate YouTube URL
 const isValidYoutubeUrl = (url) => {
   const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
@@ -30,8 +42,8 @@ exports.getVideoInfo = async (req, res) => {
       preferFreeFormats: true,
       extractorArgs: 'youtube:player_client=android',
     };
-    if (process.env.YOUTUBE_COOKIES_FILE) {
-      ytDlpOptions.cookies = process.env.YOUTUBE_COOKIES_FILE;
+    if (cookiesFilePath) {
+      ytDlpOptions.cookies = cookiesFilePath;
     }
     const info = await youtubedl(url, ytDlpOptions);
 
@@ -101,8 +113,8 @@ exports.downloadVideo = async (req, res) => {
       ffmpegLocation: binDir,
       extractorArgs: 'youtube:player_client=android',
     };
-    if (process.env.YOUTUBE_COOKIES_FILE) {
-      ytDlpOptions.cookies = process.env.YOUTUBE_COOKIES_FILE;
+    if (cookiesFilePath) {
+      ytDlpOptions.cookies = cookiesFilePath;
     }
 
     if (type === 'audio') {
