@@ -23,14 +23,16 @@ exports.getVideoInfo = async (req, res) => {
     }
 
     // Fetch video info using yt-dlp via youtube-dl-exec
-    const info = await youtubedl(url, {
+    const ytDlpOptions = {
       dumpJson: true,
       noWarnings: true,
-      noCallHome: true,
       noCheckCertificate: true,
       preferFreeFormats: true,
-      youtubeSkipDashManifest: true
-    });
+    };
+    if (process.env.YOUTUBE_COOKIES_FILE) {
+      ytDlpOptions.cookies = process.env.YOUTUBE_COOKIES_FILE;
+    }
+    const info = await youtubedl(url, ytDlpOptions);
 
     // Format the response
     const formats = info.formats
@@ -97,6 +99,9 @@ exports.downloadVideo = async (req, res) => {
       noWarnings: true,
       ffmpegLocation: binDir,
     };
+    if (process.env.YOUTUBE_COOKIES_FILE) {
+      ytDlpOptions.cookies = process.env.YOUTUBE_COOKIES_FILE;
+    }
 
     if (type === 'audio') {
       ytDlpOptions.extractAudio = true;
